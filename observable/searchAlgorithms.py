@@ -202,6 +202,7 @@ class AStar:
         init_node  = Node(self.problem, init_state, None, "")
         #initiate the frontier with the inial state
         frontier   = Frontier()
+        #initial state's A star score = 0
         frontier.push(0, init_node)
         #initiate the explored set
         explored_set = set()
@@ -210,6 +211,7 @@ class AStar:
                 raise Exception("Failure")
             #pop the node with the smallest score
             (s,n) = frontier.pop()
+            print("Node : ",n)
             if self.problem.isFinal(n.state):
                 return n.getSolution()
             explored_set.add(n)

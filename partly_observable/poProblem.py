@@ -5,6 +5,16 @@ This module contains the classes to represent a partially observable Wumpus prob
 @author: Hugo Gilbert
 """
 from abc import ABC, abstractmethod
+import sys
+import os
+
+# Récupérer le chemin absolu du répertoire parent
+parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# Ajouter le répertoire parent au sys.path
+sys.path.append(parent_dir)
+
+
 from observable.problem import Wumpus
 
 class POProblem(ABC):
@@ -162,6 +172,18 @@ class POProblem(ABC):
                 return False
         return True
     
+    def printBeliefStates(self,beliefState):
+        """ prints the states of the belief states set
+        
+        Parameters : 
+        ------
+        beliefState : set
+            A beliefState, i.e., a set of states.
+        """
+        print("belief state---------")
+        for s in beliefState : 
+            print(s)
+        print("--------------")
     def actionCost(self, beliefState, action):
         """ Returns the cost of performing an action in a given belief-state, i.e., the maximum possible cost.
         
@@ -281,7 +303,7 @@ class POWumpus(POProblem):
             The heuristic score of the current belief state, i.e., an estimation of the path cost that remains to be done in the worst case.
         
         """
-        h = 0;
+        h = 0
         for s in beliefState:
             hs = self.problem.heuristic(s)
             if hs > h:

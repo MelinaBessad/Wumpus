@@ -13,8 +13,8 @@ def main():
     print("treasure's position :",maze.treasure_position)
     print("-----------A star------------")
     print(astar.solve())
-    print("-----------IDA star-----------")
-    print(ida_star.solve())
+    #print("-----------IDA star-----------")
+    #print(ida_star.solve())
     
 if __name__ == '__main__':
     main()
