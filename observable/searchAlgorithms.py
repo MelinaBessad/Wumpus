@@ -151,16 +151,6 @@ class Frontier:
         """
         return heapq.heappop(self.frontier)
     
-    def pop_threshold(self, threshold):
-        """
-        Pops the search node with  AStar score equal to threshold. 
-
-        Returns
-        -------
-       
-        """
-        return list(filter(lambda pair : pair[0] == threshold, self.frontier))
-        
     def isEmpty(self):
         """ Checks if the frontier is empty.
 
@@ -255,7 +245,6 @@ class AStar:
             #expand the node n and calculate the score of the result nodes
             for n1 in n.expand():
                 (x,y) = n1.state.position
-                # make sure that  n1 does not contain a snare if so we do not add it to the frontier
                 score1 = self.heuristic(n1.state) + n1.pathCost
                 # Check that n1 has not been explored yet
                 explored = False
@@ -263,6 +252,9 @@ class AStar:
                     if n1.state==n_explored.state :
                         explored = True
                         break 
+                # alan should escape the snares and the wumpus if he is still alive
+                # once the wumpus died its case becomes available for alan
+                # Alan can't visit the same same twice
                 if explored==False and self.problem.maze[x,y]!='S' and (self.problem.maze[x,y]!='W' or n1.state.wumpus_beaten):#ajouterla condition ne pas aller sur le wumpus si il est encore vivant
                     frontier.push(score1,n1)
              
@@ -289,93 +281,95 @@ class IDAStar:
         """
         self.problem = problem
         self.heuristic = heuristic
-        self.explored_nodes = set()
-        self.cost_explored_node = []
+        self.frontier = Frontier()
+      
         
 
     def solve(self):
+        """
+        Run the IDAStar algorithm to find a solution to the problem.
+
+        Returns
+        -------
+        List of actions
+            The sequence of actions from the initial state to the goal state, representing the solution.
+        """
+
+        # get the initial state
         init_state =  self.problem.getInitialState()
-        init_node  = Node(self.problem, init_state, None, "")
-        #initiate the frontier with the inial state
-        self.frontier   = Frontier()
-        #initiate the explored set
-        self.explored_set = set()
-        threshold = self.heuristic(init_state)
-        #the cost of the initial state equals the manhattan distance between it and the treasure
-        self.frontier.push(threshold, init_node)
-        while True :
-            result, threshold = self.depth_limited_search(init_node, threshold) 
-            for (s,n) in (self.explored_nodes|set(self.frontier.frontier)):
-                print("n : ",n)
-                if self.problem.isFinal(n.state):
-                    return n.getSolution()
-    def depth_limited_search(self, node, threshold):
+        node  = Node(self.problem, init_state, None, "")
+        # intiate the limit to heuristic(initilState)
+        limit = self.heuristic(node.state)
+
+        i=0
+        # loop until we find a solution to the problem
+        while True : 
+            print("------------- step%d-----------" % i)
+            print("Limit : ",limit)
+            print("-------------------------------")
+            # we start the  limited deepnening search with limit as a depth limit
+            (result,new_limit) = self.IDAStar(node, limit)
+            print("-------------------------------")
+            # we check if 
+            if result and self.problem.isFinal(result.state) and result.state.wumpus_beaten:
+                print("--------Game Over--------")
+                print("The treasure is mine")
+                return result.getSolution()
+            else :
+                if new_limit == float('inf'):
+                    return "No solution found :("
+                limit = new_limit
+            i += 1
+
     
-        if self.problem.isFinal(node.state):
-            return node
-        #we add the node the explored nodes set
-        self.explored_set.add(node)
-        (min_cost,smallest_node) = self.frontier.pop()
-        for child in node.expand():
-            child_cost = child.pathCost + self.heuristic(child.state)
-            if child not in (self.explored_nodes|set(self.frontier.frontier)):
-                self.frontier.push(child_cost,child)
-            #we expand the child
-            if child_cost <= threshold:
-                result, new_threshold = self.depth_limited_search(child,threshold)
-                if result is not None :
-                    return result, new_threshold
-                min_cost = min(min_cost, new_threshold)
-        return None, threshold
+    def IDAStar(self,node,limit):
+        """
+        Perform the IDAStar search from a given node with a given limit.
 
+        Parameters
+        ----------
+        node : Node
+            The current node to expand.
+        limit : float
+            The depth limit for the current iteration.
 
-      
-    def solve_v1(self):
-        """
-        runs the IDAStar algorithm
-        RETURNS 
+        Returns
         -------
-            List of actions from the root to the terminal node found using IDA*.
+        tuple
+            A tuple containing the result node and the new limit for the next iteration.
         """
-        root_state = self.problem.getInitialState()
-        root_node  = Node(self.problem, root_state, None, "")
-        threshold = self.heuristic(root_state)
-        while True :
-            result, threshold = self.depth_limited_search(root_node, threshold)
-            for n in self.explored_nodes : 
-                if self.problem.isFinal(n.state):
-                    return n.getSolution()
-                
-    def depth_limited_search_V1(self, node, threshold):
-        """
-        runs the depth limited search
-        RETURNS
-        -------
-            (result, threshold)
-                result : is a union between the explored set and the nodes contained in the frontier
-                threshold : is the minimum fscore of the nodes in the frontier
-        """
-        print("----------------------------")
-        print("node----- : ",node)
-        print("threshold------",threshold)
         if self.problem.isFinal(node.state):
-            return ({node}, threshold)
+            return (node, limit)
         
-        node_cost= node.pathCost + self.heuristic(node.state)
-        self.cost_explored_node.append(node_cost)
-        self.explored_nodes.add(node)
-        min_cost = min(self.cost_explored_node)
-        print("min_cost : ",min_cost)
+        min_cost = float('inf')
+        # expand the nodes and add the nodes to the frontier
         for child in node.expand():
-            print("child : ",child)
-            #calculate the child cost
-            child_cost = child.pathCost + self.heuristic(child.state)
-            print("child cost : ",child_cost)
-            #we expand the child
-            if child_cost <= threshold:
-                result, new_threshold = self.depth_limited_search(child,threshold)
-                if result is not None :
-                    return self.explored_nodes|{result}, new_threshold
-                min_cost = min(min_cost, new_threshold)
-        return None, min_cost
+            (x,y) = child.state.position
+            # ensure that we dont add a case containing a snare to the frontier
+            if self.problem.maze[x,y]!='S':
+                # calculate the score of the child
+                score = self.heuristic(child.state) + child.pathCost
+                self.frontier.push(score,child)
 
+        # prints
+        print("Node : ",str(node))
+        print("Frontier : ",self.frontier.print())
+        
+        while not self.frontier.isEmpty():
+            (child_score,child )=  self.frontier.pop()
+
+            if child_score > limit:
+                min_cost = min(min_cost, child_score)
+                continue
+
+            print("========Explore Node  (reccursive): %s ============"%str(child))
+            result, new_limit= self.IDAStar(child, limit)
+            if result is not None:
+                return result, new_limit
+
+            min_cost = min(min_cost, new_limit)
+
+        if min_cost == float('inf'):
+            return None, min_cost
+        return None, min_cost
+        
