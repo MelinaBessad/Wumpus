@@ -306,4 +306,6 @@ class Wumpus(Problem):
         posx, posy    = state.position
         posx_t,posy_t = self.treasure_position 
         return abs((posx_t-posx))+ abs((posy_t-posy))
+    
+
         

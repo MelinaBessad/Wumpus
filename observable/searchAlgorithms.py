@@ -55,7 +55,7 @@ class Node:
             self.pathCost = fatherNode.pathCost + problem.actionCost(fatherNode.state, actionFromFather) 
     
     def __str__(self):
-        return str(self.state)
+        return str(self.state) 
     
     def __lt__(self,other):
         return self.state < other.state
@@ -169,7 +169,27 @@ class Frontier:
         bool
             True if the frontier is empty else False.
         """
-        return True if len(self.frontier)==0 else False   
+        return True if len(self.frontier)==0 else False 
+    
+    def print(self):
+        """
+
+        Returns
+        -------
+        String 
+            A string of all the nodes in the frontier, without printing the wumpus beaten attribute
+        """
+        frontier = "{ "
+        for i in range(len(self.frontier)):
+            (s,n) = self.frontier[i]
+            frontier += "[" +str(s)+","+str(n.state.position)+"]"
+            if i<len(self.frontier)-1:
+               frontier += ", "
+        frontier += "} "
+        return frontier
+
+
+
 
               
 
@@ -198,27 +218,59 @@ class AStar:
         -------
             List of actions from the root to the terminal node found using A*.
         """
+        # get the initial state
         init_state =  self.problem.getInitialState()
-        init_node  = Node(self.problem, init_state, None, "")
+        n  = Node(self.problem, init_state, None, "")
         #initiate the frontier with the inial state
         frontier   = Frontier()
         #initial state's A star score = 0
-        frontier.push(0, init_node)
+        frontier.push(0, n)
         #initiate the explored set
         explored_set = set()
-        while(True):
-            if frontier.isEmpty():
-                raise Exception("Failure")
-            #pop the node with the smallest score
+        # check if the Wumpus is in an adjacent square
+        print("------------- step0-----------")
+        print("Explored nodes : {}")
+        print("Frontier :",frontier.print())
+        i = 1
+        while not frontier.isEmpty():     
+            #pop the node with the smallest score 
             (s,n) = frontier.pop()
-            print("Node : ",n)
-            if self.problem.isFinal(n.state):
+
+            print("------------- step%d-----------" % i)
+            if (n.state.position==self.problem.treasure_position):
+                print("Treasure foud!!!! : ",n," — ")
+            else:
+                print("Node : ",n," — ","AStar score : ",str(n.pathCost))
+            # print explored set
+            node_strings = [str(node.state.position) for node in explored_set]  
+            result = "{%s}" % ", ".join(node_strings)  
+            print("Explored nodes : ", result)
+
+            if self.problem.isFinal(n.state) and n.state.wumpus_beaten:
+                print("--------Game Over--------")
+                print("The treasure is mine")
                 return n.getSolution()
             explored_set.add(n)
+
             #expand the node n and calculate the score of the result nodes
             for n1 in n.expand():
+                (x,y) = n1.state.position
+                # make sure that  n1 does not contain a snare if so we do not add it to the frontier
                 score1 = self.heuristic(n1.state) + n1.pathCost
-                frontier.push(score1,n1)
+                # Check that n1 has not been explored yet
+                explored = False
+                for n_explored in explored_set:
+                    if n1.state==n_explored.state :
+                        explored = True
+                        break 
+                if explored==False and self.problem.maze[x,y]!='S' and (self.problem.maze[x,y]!='W' or n1.state.wumpus_beaten):#ajouterla condition ne pas aller sur le wumpus si il est encore vivant
+                    frontier.push(score1,n1)
+             
+            # print frontier
+            print("Frontier : ",str(frontier))
+            i = i + 1
+        return "Failure"
+         
 
 
 class IDAStar:
