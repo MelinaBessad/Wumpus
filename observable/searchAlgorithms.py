@@ -243,6 +243,8 @@ class AStar:
             explored_set.add(n)
 
             #expand the node n and calculate the score of the result nodes
+            if (n.expand() == []) :
+                print("    /!\\ Encountered a Snare /!\\   ")
             for n1 in n.expand():
                 (x,y) = n1.state.position
                 score1 = self.heuristic(n1.state) + n1.pathCost
@@ -257,7 +259,7 @@ class AStar:
                 # Alan can't visit the same same twice
                 if explored==False and self.problem.maze[x,y]!='S' and (self.problem.maze[x,y]!='W' or n1.state.wumpus_beaten):#ajouterla condition ne pas aller sur le wumpus si il est encore vivant
                     frontier.push(score1,n1)
-             
+
             # print frontier
             print("Frontier : ",str(frontier))
             i = i + 1

@@ -11,7 +11,7 @@ from poSearchAlgorithms import AOStar
 
 
 def main():
-    problem = POWumpus()
+    problem = POWumpus(4,3)
     andOrSearch = AndOrSearch(problem)
     aoStar = AOStar(problem,problem.heuristic)
     

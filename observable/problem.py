@@ -7,7 +7,7 @@ This class in inherited by a simple Wumpus class to test your code.
 """
 import numpy as np
 from abc import ABC, abstractmethod
-
+import random
 
 class Problem(ABC):
     """
@@ -147,19 +147,22 @@ class Wumpus(Problem):
     ACTIONS = {"LEFT" : 'L', "RIGHT" : 'R', "UP" : 'U', "DOWN": 'D', "MAGIC": 'M'}
     
     
-    def __init__(self):
-        self.n = 4
-        self.wumpus_position = (3,2)
-        self.treasure_position = (2,3)
+    def __init__(self, size, num_snares):
+        self.n = size
+        self.wumpus_position = None
+        self.treasure_position = None
         self.maze = np.empty((self.n,self.n), np.dtype(str))
         self.maze[:] = Wumpus.ELEMENTS["EMPTY"]
-        self.maze[1,2] = Wumpus.ELEMENTS["SNARE"]#piege
-        self.maze[2,2] = Wumpus.ELEMENTS["SNARE"]
-        self.maze[1,3] = Wumpus.ELEMENTS["SNARE"]
-        self.maze[2,0] = Wumpus.ELEMENTS["SNARE"]
-        self.maze[self.treasure_position] = Wumpus.ELEMENTS["TREASURE"]
-        self.maze[self.wumpus_position] = Wumpus.ELEMENTS["WUMPUS"]
+        self.generer_instance_aleatoire(num_snares)
 
+    def generer_instance_aleatoire(self, num_snares):
+        positions = [(i, j) for i in range(self.n) for j in range(self.n)]
+        random.shuffle(positions)
+
+        self.wumpus_position = positions.pop()
+        self.treasure_position = positions.pop()
+
+        self.maze[self.wumpus_position] = Wumpus.ELEMENTS["WUMPUS"]
     def afficher_labyrinthe(self):
         print("Le labyrinthe de taille :", self.n)
         print()
