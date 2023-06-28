@@ -239,9 +239,12 @@ class POWumpus(POProblem):
     """
     PERCEPTS = {"WallOnLeft" : 'L', "WallOnRight" : 'R', "WallOnDown" : 'D',  "WallOnUp" : 'U', "SnareClose" : 'S', "WumpusClose": 'W'}
     
-    def __init__(self):
-        self.problem = Wumpus()
-        
+    def __init__(self,size, num_snares):
+        self.problem = Wumpus(size, num_snares)
+    
+    def afficher_labyrinthe(self):
+        self.problem.afficher_labyrinthe()
+
     def percepts(self, state):
         """ Returns the percepts that the agent observes in a given state.
 

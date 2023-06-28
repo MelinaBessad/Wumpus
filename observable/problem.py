@@ -7,7 +7,7 @@ This class in inherited by a simple Wumpus class to test your code.
 """
 import numpy as np
 from abc import ABC, abstractmethod
-
+import random
 
 class Problem(ABC):
     """
@@ -147,19 +147,48 @@ class Wumpus(Problem):
     ACTIONS = {"LEFT" : 'L', "RIGHT" : 'R', "UP" : 'U', "DOWN": 'D', "MAGIC": 'M'}
     
     
-    def __init__(self):
-        self.n = 4
-        self.wumpus_position = (3,2)
-        self.treasure_position = (2,3)
+    def __init__(self, size, num_snares):
+        self.n = size
+        self.wumpus_position = None
+        self.treasure_position = None
         self.maze = np.empty((self.n,self.n), np.dtype(str))
         self.maze[:] = Wumpus.ELEMENTS["EMPTY"]
-        self.maze[1,2] = Wumpus.ELEMENTS["SNARE"]#piege
-        self.maze[2,2] = Wumpus.ELEMENTS["SNARE"]
-        self.maze[1,3] = Wumpus.ELEMENTS["SNARE"]
-        self.maze[2,0] = Wumpus.ELEMENTS["SNARE"]
-        self.maze[self.treasure_position] = Wumpus.ELEMENTS["TREASURE"]
+        self.generer_instance_aleatoire(num_snares)
+
+    def generer_instance_aleatoire(self, num_snares):
+        positions = [(i, j) for i in range(self.n) for j in range(self.n)]
+        random.shuffle(positions)
+
+        self.wumpus_position = positions.pop()
+        self.treasure_position = positions.pop()
+
         self.maze[self.wumpus_position] = Wumpus.ELEMENTS["WUMPUS"]
-        
+        self.maze[self.treasure_position] = Wumpus.ELEMENTS["TREASURE"]
+
+        # Générer les positions des pièges
+        snare_positions = random.sample(positions, num_snares)
+
+        for position in snare_positions:
+            self.maze[position] = Wumpus.ELEMENTS["SNARE"]
+    
+    def afficher_labyrinthe(self):
+        print("Le labyrinthe de taille :", self.n)
+        print()
+        for row in self.maze:
+            print('  '.join(row))
+
+        print()
+        print("Position du Wumpus :", self.wumpus_position)
+        print("Position du trésor :", self.treasure_position)
+        print("Poistion des pièges : ",)
+        snare_positions = []
+        for i, row in enumerate(self.maze):
+            for j, element in enumerate(row):
+                if element == Wumpus.ELEMENTS["SNARE"]:
+                    snare_positions.append((i, j))
+        for position in snare_positions:
+            print(position)
+        print()
     class WumpusState:
         """
         Inner state class to define a state in the Wumpus problem.

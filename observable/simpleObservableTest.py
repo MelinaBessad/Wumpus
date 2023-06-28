@@ -5,24 +5,24 @@ from searchAlgorithms import AStar
 from searchAlgorithms import IDAStar
 
 def main():
-    maze = Wumpus()
+    maze = Wumpus(4,3)
+    #maze.generer_instance_aleatoire()
     astar = AStar(maze, maze.heuristic)
     ida_star = IDAStar(maze, maze.heuristic)
-    
+    # Afficher les informations
     print("============================================")
     print("===========Welcome to Wumpus Game===========")
     print("============================================")
-    print("monster's position  : ",maze.wumpus_position)
-    print("treasure's position :",maze.treasure_position)
+    maze.afficher_labyrinthe()
+
     print("--------------------------------------------")
     print("---------------A star-----------------------")
     print("--------------------------------------------")
-    #print(astar.solve())
+    print(astar.solve())
     print("--------------------------------------------")
     print("-----------IDA star-----------")
     print("--------------------------------------------")
-    print(ida_star.solve())
+    #print(ida_star.solve())
     
 if __name__ == '__main__':
     main()
-    

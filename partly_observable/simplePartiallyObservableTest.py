@@ -13,14 +13,13 @@ from poSearchAlgorithms import AOStar
 
 
 def main():
-    problem = POWumpus()
+    problem = POWumpus(4,3)
     andOrSearch = AndOrSearch(problem)
     
     print("============================================")
     print("===========Welcome to Wumpus Game===========")
     print("============================================")
-    print("monster's position  : ",problem.problem.wumpus_position)
-    print("treasure's position :",problem.problem.treasure_position)
+    problem.afficher_labyrinthe()
     print("--------------------------------------------")
     print("---------------AndOrSearch------------------")
     print("--------------------------------------------")
