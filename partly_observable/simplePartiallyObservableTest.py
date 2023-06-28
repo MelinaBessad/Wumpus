@@ -2,8 +2,6 @@
 # -*- coding: utf-8 -*-
 """
 Simple Wumpus test in partially observable environment
-
-@author: Hugo Gilbert
 """
 
 from poProblem import POWumpus
@@ -15,19 +13,17 @@ from poSearchAlgorithms import AOStar
 def main():
     problem = POWumpus()
     andOrSearch = AndOrSearch(problem)
+    aoStar = AOStar(problem,problem.heuristic)
     
     print("============================================")
     print("===========Welcome to Wumpus Game===========")
     print("============================================")
-    print("monster's position  : ",problem.problem.wumpus_position)
-    print("treasure's position :",problem.problem.treasure_position)
-    print("--------------------------------------------")
+    problem.problem.afficher_labyrinthe()
     print("---------------AndOrSearch------------------")
     print("--------------------------------------------")
-    andOrSearch.solve()
-    
-    #aoStar = AOStar(problem, problem.heuristic)
-    #print(aoStar.solve())    
+    #andOrSearch.solve()
+    aoStar = AOStar(problem, problem.heuristic)
+    print(aoStar.solve())    
     
     
 if __name__ == '__main__':

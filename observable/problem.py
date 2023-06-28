@@ -159,6 +159,25 @@ class Wumpus(Problem):
         self.maze[2,0] = Wumpus.ELEMENTS["SNARE"]
         self.maze[self.treasure_position] = Wumpus.ELEMENTS["TREASURE"]
         self.maze[self.wumpus_position] = Wumpus.ELEMENTS["WUMPUS"]
+
+    def afficher_labyrinthe(self):
+        print("Le labyrinthe de taille :", self.n)
+        print()
+        for row in self.maze:
+            print('  '.join(row))
+
+        print()
+        print("Position du Wumpus :", self.wumpus_position)
+        print("Position du trésor :", self.treasure_position)
+        print("Poistion des pièges : ",)
+        snare_positions = []
+        for i, row in enumerate(self.maze):
+            for j, element in enumerate(row):
+                if element == Wumpus.ELEMENTS["SNARE"]:
+                    snare_positions.append((i, j))
+        for position in snare_positions:
+            print(position)
+        print()
         
     class WumpusState:
         """

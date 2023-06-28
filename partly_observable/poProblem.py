@@ -150,7 +150,7 @@ class POProblem(ABC):
         possibleNextPercepts = self.possiblePercepts(possibleNextStates)
         res = []
         for percept in possibleNextPercepts:
-            res.append({state for state in possibleNextStates if self.percepts(state) == percept and self.problem.maze[state.position] != Wumpus.ELEMENTS["SNARE"]})
+            res.append({state for state in possibleNextStates if self.percepts(state) == percept})
         return res
     
     def isFinal(self, beliefState):

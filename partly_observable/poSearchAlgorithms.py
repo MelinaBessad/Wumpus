@@ -3,7 +3,6 @@
 """
 This module contains the different classes to run the search algorithms in a partially observable environment. 
 
-@author: Hugo Gilbert
 """
 
 class AndOrSearch:
@@ -54,48 +53,26 @@ class AndOrSearch:
         list
             list of actions, conditional plan
         """
-        # initiate the plan
-        plan = []
-        print("")
-        print("")
-        print("-----Belief state----")
-        self.po_problem.printBeliefStates(b_state)
-        
-        # Check if any state of the belief state is a goal state: every state on it is final and the wumpus has been defeated
+        #Check if any state of the belief state is a goal state 
         if self.po_problem.isFinal(b_state):
-            return plan
+            return []
         
-        # Check if the belief state is on the path
+        #Check if the belief state is on path
         if b_state in path : 
             return "Failure"
         
         for action in self.po_problem.actions(b_state):
-            # Add the current belief state to the path
-            path.append(b_state)
-            # Update the set of possible future states when performing action
-            next_states= self.po_problem.update(b_state, action)
-
-            print("Action :", action)
-            # print path
-            print("-------- Path   :")
-            for b_st in path:
-                self.po_problem.printBeliefStates(b_st)
-            print("-------- Next Belief States  :")
-            for b_s in next_states :
-                self.po_problem.printBeliefStates(b_s)
-            
-            # call the and search function for with the new belief states
-            plan = self.andSearch(next_states, path)
-            
-            print("--------- Resulting Belief State   :")
-            self.po_problem.printBeliefStates(b_state)
+            #update the list of new belief states 
+            next_possible_states = self.po_problem.update(b_state,action)
+            #add the current belief state to the path
+            new_path = path + [b_state]
+            plan = self.andSearch(next_possible_states, new_path)
             if plan != "Failure":
-                plan = [action] + plan
-                return plan
-        
-        return "Failure"
+                return [action]+plan
             
-    def andSearch(self, states, path):
+        return "Failure"
+    
+    def andSearch(self, b_states, path):
         """
         Returns list of actions, conditional plan
         Parameters
@@ -104,31 +81,23 @@ class AndOrSearch:
             A beliefState, i.e., a set of states.
         path : list
             A list of belief states 
-
         Returns
         -------
         list
             list of actions, conditional plan 
         """
-        # Initiate the conditional plan
+        #initiate the conditional plan
         plan = []
-        for b_state in states:
-            plan = self.orSearch(b_state, path)
-            if plan == "Failure":
+        for states in b_states : 
+            plan_i = self.orSearch(states, path)
+            if plan_i=="Failure":
                 return "Failure"
-            if b_state:
-                return plan
+            plan.append(plan_i)
+        return plan
         
-        return "Failure"
-
-
-        
-
-        
-
+                 
 class AOStar:
     """ Class to run the AndOrSearch algorithm.
-    This class and this documentation has to be completed.
     """
     
     def __init__(self, po_problem, heuristic):
@@ -139,14 +108,53 @@ class AOStar:
             The partially observable problem to be solved. 
         heuristic : function
             The heuristic function to guide the search.
+        open : 
+            The set  of nodes that have been explored and for which it is not known whether they lead to a solution or not
+        close:
+            The set of nodes that have been treated
         """
         
         self.po_problem = po_problem
         self.heuristic = heuristic
-        
-        
+        self.open = set()
+        self.close = set()
+    
     def solve(self):
         """
-        TODO
+        Applies the AO* algorithm
+        -------
+        Returns 
+
+        A contingency plan
         """
-        pass
+        # get the initial belief state
+        belief_state = self.problem.getInitialState()
+        # step 1 :  put the initial node in the set open 
+        self.open.add(belief_state)
+        
+        while self.open:
+            # Step 2: Select the most promising subplan T
+            for action in self.po_problem.actions(belief_state):
+                possible_future_states = self.po_problem.update(belief_state, action)
+
+            
+            # Step 3: Select a node n from Open and T
+            node = self.selectNodeFromOpenAndSubplan(t)
+            
+            # Step 4: Check if node n is a final state
+            if self.problem.isFinal(node):
+                self.markNodeAsResolved(node)
+                return self.constructPlan(node)
+            
+            # Step 5: Check if node n is unsolvable
+            if self.isNodeUnsolvable(node):
+                self.markNodeAsUnsolvable(node)
+                continue
+            
+            # Step 6: Expand node n and add successors to Open
+            successors = self.expandNode(node)
+            self.open.update(successors)
+        
+        return "Failure"
+    
+    
