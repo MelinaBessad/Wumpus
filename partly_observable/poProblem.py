@@ -150,7 +150,7 @@ class POProblem(ABC):
         possibleNextPercepts = self.possiblePercepts(possibleNextStates)
         res = []
         for percept in possibleNextPercepts:
-            res.append({state for state in possibleNextStates if self.percepts(state) == percept})
+            res.append({state for state in possibleNextStates if self.percepts(state) == percept and self.problem.maze[state.position] != Wumpus.ELEMENTS["SNARE"]})
         return res
     
     def isFinal(self, beliefState):
@@ -168,7 +168,7 @@ class POProblem(ABC):
 
         """
         for state in beliefState:
-            if(not self.problem.isFinal(state)):
+            if(not self.problem.isFinal(state)) or not state.wumpus_beaten:
                 return False
         return True
     
@@ -180,10 +180,9 @@ class POProblem(ABC):
         beliefState : set
             A beliefState, i.e., a set of states.
         """
-        print("belief state---------")
         for s in beliefState : 
-            print(s)
-        print("--------------")
+            print("State : ",str(s))
+
     def actionCost(self, beliefState, action):
         """ Returns the cost of performing an action in a given belief-state, i.e., the maximum possible cost.
         

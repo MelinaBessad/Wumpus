@@ -15,10 +15,16 @@ from poSearchAlgorithms import AOStar
 def main():
     problem = POWumpus()
     andOrSearch = AndOrSearch(problem)
-    andOrSearch.solve()
-
+    
+    print("============================================")
+    print("===========Welcome to Wumpus Game===========")
+    print("============================================")
     print("monster's position  : ",problem.problem.wumpus_position)
     print("treasure's position :",problem.problem.treasure_position)
+    print("--------------------------------------------")
+    print("---------------AndOrSearch------------------")
+    print("--------------------------------------------")
+    andOrSearch.solve()
     
     #aoStar = AOStar(problem, problem.heuristic)
     #print(aoStar.solve())    

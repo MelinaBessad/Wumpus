@@ -11,7 +11,7 @@ class AndOrSearch:
     This class and this documentation has to be completed.
     """
     
-    def __init__(self,po_problem):
+    def __init__(self, po_problem):
         """
         Parameters
         ----------
@@ -23,7 +23,6 @@ class AndOrSearch:
         None.
 
         """
-
         self.po_problem = po_problem
     
     def solve(self):
@@ -34,7 +33,11 @@ class AndOrSearch:
 
         A contingency plan
         """
-        return self.orSearch(self.po_problem.getInitialState(), [])
+        plan = self.orSearch(self.po_problem.getInitialState(), [])
+        if plan != "Failure":
+            print("Treasure found!!!!")
+            print("Game over!!!!!")
+        print(plan)
 
     def orSearch(self, b_state, path):
         """
@@ -51,31 +54,48 @@ class AndOrSearch:
         list
             list of actions, conditional plan
         """
-        self.po_problem.printBeliefStates(b_state)
-        #the conditional plan
+        # initiate the plan
         plan = []
-        #Check if any state of the belief state is a goal state 
+        print("")
+        print("")
+        print("-----Belief state----")
+        self.po_problem.printBeliefStates(b_state)
+        
+        # Check if any state of the belief state is a goal state: every state on it is final and the wumpus has been defeated
         if self.po_problem.isFinal(b_state):
             return plan
-        #Check if the belief state is on path
+        
+        # Check if the belief state is on the path
         if b_state in path : 
-            return None
+            return "Failure"
+        
         for action in self.po_problem.actions(b_state):
-            #add the current belief state to the path
+            # Add the current belief state to the path
             path.append(b_state)
-            #update the list of new belief states 
-            list_b_state = self.po_problem.update(b_state,action)
-            #run every belief state
-            for new_b_state in list_b_state:
-                plan_i = self.andSearch(new_b_state,path)
-                if plan_i is not None :
-                    plan+= plan_i
-            if plan is not None:
-                plan = [(b_state,action)]+plan
-        return plan
+            # Update the set of possible future states when performing action
+            next_states= self.po_problem.update(b_state, action)
+
+            print("Action :", action)
+            # print path
+            print("-------- Path   :")
+            for b_st in path:
+                self.po_problem.printBeliefStates(b_st)
+            print("-------- Next Belief States  :")
+            for b_s in next_states :
+                self.po_problem.printBeliefStates(b_s)
             
-    
-    def andSearch(self, b_states, path):
+            # call the and search function for with the new belief states
+            plan = self.andSearch(next_states, path)
+            
+            print("--------- Resulting Belief State   :")
+            self.po_problem.printBeliefStates(b_state)
+            if plan != "Failure":
+                plan = [action] + plan
+                return plan
+        
+        return "Failure"
+            
+    def andSearch(self, states, path):
         """
         Returns list of actions, conditional plan
         Parameters
@@ -90,12 +110,18 @@ class AndOrSearch:
         list
             list of actions, conditional plan 
         """
-        #initiate the conditional plan
+        # Initiate the conditional plan
         plan = []
-        plan = self.orSearch(b_states,path)
-        if plan is None:
-            return None
-        return plan
+        for b_state in states:
+            plan = self.orSearch(b_state, path)
+            if plan == "Failure":
+                return "Failure"
+            if b_state:
+                return plan
+        
+        return "Failure"
+
+
         
 
         
