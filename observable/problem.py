@@ -3,7 +3,6 @@
 """
 This module contains an abstract class to represent a search problem. 
 This class in inherited by a simple Wumpus class to test your code.  
-@author: Hugo Gilbert
 """
 import numpy as np
 from abc import ABC, abstractmethod
