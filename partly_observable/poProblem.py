@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 """
 This module contains the classes to represent a partially observable Wumpus problem.
-@author: Hugo Gilbert
 """
 from abc import ABC, abstractmethod
 import sys
